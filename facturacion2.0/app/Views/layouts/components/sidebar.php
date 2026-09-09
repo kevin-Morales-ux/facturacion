@@ -70,6 +70,14 @@
                         </a>
                     </li>
 
+                    <!-- Opción de Compras añadida para Administrador -->
+                    <li class="nav-item">
+                        <a href="<?= base_url('admin/compras') ?>" class="nav-link <?= url_is('admin/compras*') ? 'active' : '' ?>">
+                            <i class="nav-icon bi bi-cart-plus"></i>
+                            <p>Compras</p>
+                        </a>
+                    </li>
+
                 <?php endif; ?>
 
             </ul>

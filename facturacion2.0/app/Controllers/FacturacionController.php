@@ -191,7 +191,7 @@ class FacturacionController extends BaseController
     }
 
     /**
-     * Genera la vista de impresión/PDF para una factura específica.
+     * Genera y descarga el PDF para una factura específica.
      */
     public function pdf($id)
     {
@@ -206,9 +206,9 @@ class FacturacionController extends BaseController
         }
 
         $detalles = $this->detalleVentaModel->select('detalle_venta.*, producto.nombre as producto_nombre, producto.codigo_barras')
-                                          ->join('producto', 'producto.id_producto = detalle_venta.id_producto')
-                                          ->where('detalle_venta.id_venta', $id)
-                                          ->findAll();
+                                      ->join('producto', 'producto.id_producto = detalle_venta.id_producto')
+                                      ->where('detalle_venta.id_venta', $id)
+                                      ->findAll();
 
         $data = [
             'factura' => [
@@ -223,7 +223,20 @@ class FacturacionController extends BaseController
             'detalles' => $detalles
         ];
 
-        // Carga la plantilla de vista que creaste para el diseño del PDF/impresión
-        return view('facturacion/pdf', $data);
+        // 1. Cargar la librería Dompdf
+        $dompdf = new \Dompdf\Dompdf();
+        
+        // 2. Renderizar la vista a HTML y pasársela a Dompdf
+        $html = view('facturacion/pdf', $data);
+        $dompdf->loadHtml($html);
+
+        // 3. Configurar tamaño y orientación del papel (Opcional)
+        $dompdf->setPaper('A4', 'portrait');
+
+        // 4. Procesar/Renderizar el PDF
+        $dompdf->render();
+
+        // 5. Forzar la descarga automática del archivo PDF ("Attachment" => true)
+        return $dompdf->stream("factura_" . $id . ".pdf", ["Attachment" => true]);
     }
 }

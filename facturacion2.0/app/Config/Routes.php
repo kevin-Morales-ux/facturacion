@@ -20,8 +20,8 @@ $routes->get('logout', 'AuthController::logout');
 // 2. RUTAS PARA AMBOS ROLES (Administrador y Encargado)
 // ==========================================
 $routes->group('', ['filter' => ['auth', 'role:administrador,encargado']], static function ($routes) {
-    $routes->get('/', 'Home::index');
-    $routes->get('dashboard', 'Home::index');
+    $routes->get('/', 'DashboardController::index');          // Actualizado al nuevo controlador
+    $routes->get('dashboard', 'DashboardController::index');  // Actualizado al nuevo controlador
     $routes->get('facturas', 'FacturacionController::index');
     $routes->get('facturas/nueva', 'FacturacionController::index');
     $routes->get('facturacion/pdf/(:num)', 'FacturacionController::pdf/$1');
@@ -47,6 +47,7 @@ $routes->group('admin', ['filter' => ['auth', 'role:administrador']], static fun
     $routes->get('proveedores', 'ProveedoresController::index');
     $routes->get('usuarios', 'UsuariosController::index');
     $routes->get('productos', 'ProductosController::index');
+    $routes->get('compras', 'ComprasController::index'); // <-- Vista principal de Compras
 });
 
 // Endpoints AJAX - Gestión Admin
@@ -90,4 +91,10 @@ $routes->group('productos', ['filter' => ['auth', 'ajax', 'role:administrador']]
     $routes->post('guardar', 'ProductosController::guardar');
     $routes->get('obtener/(:num)', 'ProductosController::obtener/$1');
     $routes->delete('eliminar/(:num)', 'ProductosController::eliminar/$1');
+});
+
+// Endpoints AJAX - Compras (Administrador)
+$routes->group('admin/compras', ['filter' => ['auth', 'ajax', 'role:administrador']], static function ($routes) {
+    $routes->post('guardar', 'ComprasController::guardar');
+    $routes->get('buscarProductos', 'ComprasController::buscarProductos');
 });
