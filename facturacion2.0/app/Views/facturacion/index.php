@@ -20,7 +20,7 @@
                         <th>Cliente</th>
                         <th>Atendido por</th>
                         <th class="text-end">Total ($)</th>
-                        <th style="width: 100px;" class="text-center">Acciones</th>
+                        <th style="width: 130px;" class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -220,6 +220,9 @@ $(document).ready(function() {
                         <button class="btn btn-info btn-sm text-white" onclick="verDetalleFactura(${row.id_venta})" title="Ver Detalle">
                             <i class="bi bi-eye"></i>
                         </button>
+                        <a href="<?= base_url('facturacion/pdf/') ?>${row.id_venta}" class="btn btn-danger btn-sm" target="_blank" title="Imprimir PDF">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                        </a>
                     `;
                 }
             }

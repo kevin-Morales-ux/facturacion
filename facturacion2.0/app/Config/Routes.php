@@ -24,6 +24,7 @@ $routes->group('', ['filter' => ['auth', 'role:administrador,encargado']], stati
     $routes->get('dashboard', 'Home::index');
     $routes->get('facturas', 'FacturacionController::index');
     $routes->get('facturas/nueva', 'FacturacionController::index');
+    $routes->get('facturacion/pdf/(:num)', 'FacturacionController::pdf/$1');
 });
 
 // Endpoints AJAX - Facturación
@@ -33,6 +34,7 @@ $routes->group('facturas', ['filter' => ['auth', 'ajax', 'role:administrador,enc
     $routes->get('buscarProductos', 'FacturacionController::buscarProductos');
     $routes->post('guardar', 'FacturacionController::guardar');
     $routes->get('obtener/(:num)', 'FacturacionController::obtener/$1');
+    
 });
 
 // ==========================================

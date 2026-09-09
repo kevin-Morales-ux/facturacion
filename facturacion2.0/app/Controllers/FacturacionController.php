@@ -49,8 +49,8 @@ class FacturacionController extends BaseController
         }
 
         $clientes = $this->clienteModel->like('identificacion', $term)
-                                       ->orLike('nombre', $term)
-                                       ->findAll(10);
+                                     ->orLike('nombre', $term)
+                                     ->findAll(10);
 
         return $this->response->setJSON($clientes);
     }
@@ -67,8 +67,8 @@ class FacturacionController extends BaseController
         }
 
         $productos = $this->productoModel->like('codigo_barras', $term)
-                                         ->orLike('nombre', $term)
-                                         ->findAll(10);
+                                       ->orLike('nombre', $term)
+                                       ->findAll(10);
 
         return $this->response->setJSON($productos);
     }
@@ -172,10 +172,10 @@ class FacturacionController extends BaseController
         }
 
         $venta = $this->ventaModel->select('venta.*, cliente.nombre AS cliente_nombre, cliente.identificacion AS cliente_identificacion, cliente.telefono, cliente.correo, usuario.nombre AS usuario_nombre')
-                                  ->join('cliente', 'cliente.id_cliente = venta.id_cliente')
-                                  ->join('usuario', 'usuario.id_usuario = venta.id_usuario')
-                                  ->where('venta.id_venta', $id)
-                                  ->first();
+                                ->join('cliente', 'cliente.id_cliente = venta.id_cliente')
+                                ->join('usuario', 'usuario.id_usuario = venta.id_usuario')
+                                ->where('venta.id_venta', $id)
+                                ->first();
 
         if (!$venta) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Factura no encontrada.']);
@@ -188,5 +188,42 @@ class FacturacionController extends BaseController
             'venta'    => $venta,
             'detalles' => $detalles
         ]);
+    }
+
+    /**
+     * Genera la vista de impresión/PDF para una factura específica.
+     */
+    public function pdf($id)
+    {
+        $venta = $this->ventaModel->select('venta.*, cliente.nombre AS cliente_nombre, cliente.identificacion AS cliente_identificacion, cliente.telefono, cliente.correo, usuario.nombre AS usuario_nombre')
+                                ->join('cliente', 'cliente.id_cliente = venta.id_cliente')
+                                ->join('usuario', 'usuario.id_usuario = venta.id_usuario')
+                                ->where('venta.id_venta', $id)
+                                ->first();
+
+        if (!$venta) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Factura no encontrada');
+        }
+
+        $detalles = $this->detalleVentaModel->select('detalle_venta.*, producto.nombre as producto_nombre, producto.codigo_barras')
+                                          ->join('producto', 'producto.id_producto = detalle_venta.id_producto')
+                                          ->where('detalle_venta.id_venta', $id)
+                                          ->findAll();
+
+        $data = [
+            'factura' => [
+                'id'             => $venta['id_venta'],
+                'created_at'     => $venta['created_id'] ?? $venta['created_at'] ?? $venta['fecha'] ?? date('Y-m-d H:i:s'),
+                'total'          => $venta['total'],
+                'cliente'        => $venta['cliente_nombre'],
+                'identificacion' => $venta['cliente_identificacion'],
+                'direccion'      => 'N/D',
+                'atendido'       => $venta['usuario_nombre']
+            ],
+            'detalles' => $detalles
+        ];
+
+        // Carga la plantilla de vista que creaste para el diseño del PDF/impresión
+        return view('facturacion/pdf', $data);
     }
 }

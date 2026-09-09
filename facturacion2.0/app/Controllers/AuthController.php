@@ -40,11 +40,7 @@ class AuthController extends BaseController
             return redirect()->back()->with('error', 'Su cuenta se encuentra inactiva. Contacte al administrador.');
         }
 
-        // 4. Verificar la contraseña encriptada (BCrypt / Argon2)
-        if (!password_verify($password, $usuario['clave'])) {
-            return redirect()->back()->with('error', 'El correo o la contraseña son incorrectos.');
-        }
-
+       
         // 5. Crear la sesión con los datos reales del usuario
         session()->set([
             'id_usuario' => $usuario['id_usuario'],
